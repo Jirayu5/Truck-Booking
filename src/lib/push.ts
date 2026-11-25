@@ -52,3 +52,22 @@ export async function disablePush(): Promise<void> {
   await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
   await sub.unsubscribe()
 }
+
+// ถ้าเบราว์เซอร์สมัคร Push ไว้แล้วแต่ฐานข้อมูลยังไม่มี (หรือสลับบัญชีในเครื่องเดียวกัน) ให้ลงทะเบียนให้อัตโนมัติ
+let lastSynced = ''
+export async function syncPush(): Promise<void> {
+  try {
+    if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return
+    const { data } = await supabase.auth.getSession()
+    const uid = data.session?.user.id
+    if (!uid || lastSynced === uid) return
+    const reg = await navigator.serviceWorker.getRegistration()
+    const sub = await reg?.pushManager.getSubscription()
+    if (!sub) return
+    const j = sub.toJSON()
+    const { error } = await supabase.rpc('register_push', {
+      p_endpoint: j.endpoint!, p_p256dh: j.keys!.p256dh, p_auth: j.keys!.auth,
+    })
+    if (!error) lastSynced = uid
+  } catch { /* ลองใหม่ครั้งหน้า */ }
+}

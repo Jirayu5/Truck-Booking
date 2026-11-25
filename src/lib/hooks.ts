@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase'
-import { enablePush, getPushState, type PushState } from './push'
+import { enablePush, getPushState, syncPush, type PushState } from './push'
 
 export function useUnread(userId: string | undefined) {
   const [n, setN] = useState(0)
@@ -23,7 +23,7 @@ export function usePush() {
   const [state, setState] = useState<PushState | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  useEffect(() => { getPushState().then(setState) }, [])
+  useEffect(() => { getPushState().then((s) => { setState(s); if (s === 'on') void syncPush() }) }, [])
   const enable = useCallback(async () => {
     setBusy(true); setErr(null)
     try { await enablePush() } catch (e) { setErr((e as Error).message) }
