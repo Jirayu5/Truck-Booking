@@ -39,9 +39,9 @@ export async function enablePush(): Promise<void> {
     (await reg.pushManager.getSubscription()) ??
     (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(VAPID!) }))
   const j = sub.toJSON()
-  const { error } = await supabase
-    .from('push_subscriptions')
-    .upsert({ endpoint: j.endpoint!, p256dh: j.keys!.p256dh, auth: j.keys!.auth }, { onConflict: 'endpoint' })
+  const { error } = await supabase.rpc('register_push', {
+    p_endpoint: j.endpoint!, p_p256dh: j.keys!.p256dh, p_auth: j.keys!.auth,
+  })
   if (error) throw error
 }
 
