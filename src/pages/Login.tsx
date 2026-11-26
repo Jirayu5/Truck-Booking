@@ -34,7 +34,7 @@ export default function Login() {
         setIntentRole(null)
         const m = error.message
         setErr(
-          /not confirmed/i.test(m) ? 'อีเมลนี้ยังไม่ได้ยืนยัน: ปิด “Confirm email” ใน Supabase หรือกดลิงก์ในอีเมลที่ได้รับ'
+          /not confirmed/i.test(m) ? 'อีเมลนี้ยังไม่ได้ยืนยัน กรุณากดลิงก์ในอีเมลที่ได้รับ (ดูในกล่องสแปมด้วย)'
           : /invalid login/i.test(m) ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง (หรือยังไม่ได้สมัครบัญชีนี้)'
           : /api key|apikey|failed to fetch/i.test(m) ? 'เชื่อมต่อ Supabase ไม่ได้: ตรวจ URL และคีย์ในไฟล์ .env แล้วรีสตาร์ต npm run dev'
           : m,
@@ -43,13 +43,13 @@ export default function Login() {
     } else {
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { data: { full_name: name, ...(dept === 'dispatch' ? { dispatch_code: code.trim() } : {}) } },
+        options: { data: { full_name: name.trim(), ...(dept === 'dispatch' ? { dispatch_code: code.trim() } : { sales_code: code.trim() }) } },
       })
       if (error) {
         setIntentRole(null)
         // รหัสผิด → ฐานข้อมูลปฏิเสธการสร้างบัญชี Supabase จะตอบเป็น "Database error saving new user"
-        setErr(dept === 'dispatch' && /database error|dispatch code/i.test(error.message)
-          ? 'รหัสแผนกจัดส่งไม่ถูกต้อง กรุณาขอรหัสจากผู้ดูแลระบบ'
+        setErr(/database error|invalid (dispatch|sales) code/i.test(error.message)
+          ? (dept === 'dispatch' ? 'รหัสแผนกจัดส่งไม่ถูกต้อง กรุณาขอรหัสจากผู้ดูแลระบบ' : 'รหัสบริษัทไม่ถูกต้อง กรุณาขอรหัสจากผู้ดูแลระบบ')
           : error.message)
       } else if (!data.session) {
         setIntentRole(null)
@@ -98,8 +98,8 @@ export default function Login() {
           <Field label="รหัสผ่าน" required htmlFor="f-password">
             <input id="f-password" className={inputCls} type="password" minLength={8} autoComplete={mode === 'in' ? 'current-password' : 'new-password'} value={password} onChange={(e) => setPassword(e.target.value)} required />
           </Field>
-          {mode === 'up' && dept === 'dispatch' && (
-            <Field label="รหัสแผนกจัดส่ง" required hint="ขอรหัสจากผู้ดูแลระบบ (ใช้ยืนยันว่าเป็นพนักงานแผนกจัดส่งจริง)" htmlFor="f-code">
+          {mode === 'up' && (
+            <Field label={dept === 'dispatch' ? 'รหัสแผนกจัดส่ง' : 'รหัสบริษัท'} required hint="ขอรหัสจากผู้ดูแลระบบ (ใช้ยืนยันว่าเป็นพนักงานจริง)" htmlFor="f-code">
               <input id="f-code" className={inputCls} value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" required />
             </Field>
           )}
