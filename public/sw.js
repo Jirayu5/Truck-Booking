@@ -13,6 +13,10 @@ self.addEventListener('push', (event) => {
       body: data.body || '',
       icon: 'icon-192.png',
       badge: 'icon-192.png',
+      lang: 'th',
+      vibrate: [250, 120, 250, 120, 400], // สั่น: ยาว-สั้น-ยาว
+      tag: data.url || 'booking',         // คำขอเดียวกันแจ้งทับกัน ไม่ซ้อนหลายอัน
+      renotify: true,                     // แต่ถ้ามีอัปเดตใหม่ ให้ส่งเสียง/สั่นอีกครั้ง
       data: { url: data.url || './' },
     }),
   )
