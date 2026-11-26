@@ -24,7 +24,16 @@ export default function NewBooking() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF((p) => ({ ...p, [k]: e.target.value }))
   const add = (list: FileList | null) => {
     const picked = list ? Array.from(list) : []
-    if (picked.length) setFiles((p) => [...p, ...picked])
+    if (!picked.length) return
+    const ok = picked.filter((x) => x.size <= 5 * 1024 * 1024 && (x.type.startsWith('image/') || x.type === 'application/pdf'))
+    const msgs: string[] = []
+    if (ok.length < picked.length) msgs.push('บางไฟล์ถูกข้าม: รับเฉพาะรูปภาพหรือ PDF ขนาดไม่เกิน 5 MB')
+    setFiles((p) => {
+      const next = [...p, ...ok].slice(0, 10)
+      if (p.length + ok.length > 10) msgs.push('แนบได้ไม่เกิน 10 ไฟล์ต่อคำขอ')
+      return next
+    })
+    setErr(msgs.length ? msgs.join(' / ') : null)
   }
   const onDrop = (e: DragEvent) => { e.preventDefault(); setDrag(false); add(e.dataTransfer.files) }
 
@@ -51,7 +60,10 @@ export default function NewBooking() {
       await reload()
       nav(`/bookings/${data.id}`, { replace: true })
     } catch (e) {
-      setErr((e as Error).message || 'ส่งคำขอไม่สำเร็จ')
+      const m = (e as Error).message || ''
+      setErr(/daily booking limit/i.test(m) ? 'ส่งคำขอครบ 30 รายการใน 24 ชั่วโมงแล้ว กรุณาลองใหม่ภายหลัง'
+        : /too many files/i.test(m) ? 'แนบไฟล์ได้ไม่เกิน 10 ไฟล์ต่อคำขอ'
+        : m || 'ส่งคำขอไม่สำเร็จ')
       setBusy(false)
     }
   }
@@ -91,17 +103,17 @@ export default function NewBooking() {
                 </Field>
               </div>
               <Field label="ชื่อลูกค้า" htmlFor="f-cust" required>
-                <input className={inputCls} id="f-cust" placeholder="บริษัท [ชื่อลูกค้า] จำกัด" value={f.customer_name} onChange={set('customer_name')} required />
+                <input className={inputCls} id="f-cust" maxLength={200} placeholder="บริษัท [ชื่อลูกค้า] จำกัด" value={f.customer_name} onChange={set('customer_name')} required />
               </Field>
               <Field label="สถานที่ส่งสินค้า" htmlFor="f-dest" required>
-                <textarea className={inputCls} id="f-dest" rows={4} placeholder="ที่อยู่ปลายทาง เช่น เลขที่ ถนน ตำบล อำเภอ จังหวัด" value={f.destination} onChange={set('destination')} required />
+                <textarea className={inputCls} id="f-dest" maxLength={500} rows={4} placeholder="ที่อยู่ปลายทาง เช่น เลขที่ ถนน ตำบล อำเภอ จังหวัด" value={f.destination} onChange={set('destination')} required />
               </Field>
             </Card>
 
             <Card className="space-y-5 p-6">
               <h2 className="text-lg font-bold text-slate-700 lg:text-xl lg:text-inherit">ข้อมูลเพิ่มเติม <span className="text-sm font-normal text-muted lg:hidden">(ไม่บังคับ)</span></h2>
               <Field label="เวลาถึงปลายทาง" htmlFor="f-arrive">
-                <input className={`${inputCls} lg:max-w-sm`} id="f-arrive" placeholder="เช่น 11:00 หรือ ก่อนเที่ยง" value={f.arrive_time} onChange={set('arrive_time')} />
+                <input className={`${inputCls} lg:max-w-sm`} id="f-arrive" maxLength={100} placeholder="เช่น 11:00 หรือ ก่อนเที่ยง" value={f.arrive_time} onChange={set('arrive_time')} />
               </Field>
               <Field label="เอกสารประกอบ" hint="รูปภาพหรือ PDF">
                 <input ref={pick} type="file" multiple accept="image/*,application/pdf" className="hidden"
@@ -129,7 +141,7 @@ export default function NewBooking() {
                 )}
               </Field>
               <Field label="หมายเหตุ" htmlFor="f-note">
-                <textarea className={inputCls} id="f-note" rows={3} placeholder="เช่น ติดต่อผู้รับก่อนเข้าส่ง" value={f.note} onChange={set('note')} />
+                <textarea className={inputCls} id="f-note" maxLength={1000} rows={3} placeholder="เช่น ติดต่อผู้รับก่อนเข้าส่ง" value={f.note} onChange={set('note')} />
               </Field>
             </Card>
             <div className="lg:hidden"><ErrorBox msg={err} /></div>
