@@ -43,7 +43,7 @@ export default function Login() {
     } else {
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: window.location.origin + import.meta.env.BASE_URL, data: { full_name: name.trim(), ...(dept === 'dispatch' ? { dispatch_code: code.trim() } : { sales_code: code.trim() }) } },
+        options: { emailRedirectTo: window.location.href.split('#')[0], data: { full_name: name.trim(), ...(dept === 'dispatch' ? { dispatch_code: code.trim() } : { sales_code: code.trim() }) } },
       })
       if (error) {
         setIntentRole(null)
