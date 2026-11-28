@@ -7,10 +7,12 @@ import Login from './pages/Login'
 import MyBookings from './pages/MyBookings'
 import NewBooking from './pages/NewBooking'
 import Notifications from './pages/Notifications'
+import ChangePassword, { RecoveryPassword } from './pages/Password'
 import Queue from './pages/Queue'
 
 function Gate() {
-  const { session, profile, loading } = useAuth()
+  const { session, profile, loading, recovery } = useAuth()
+  if (recovery) return session ? <RecoveryPassword /> : <p className="p-8 text-center text-muted">กำลังตรวจสอบลิงก์…</p>
   if (loading) return <p className="p-8 text-center text-muted">กำลังโหลด…</p>
   if (!session) return <Login />
   if (!profile) return <p className="p-8 text-center text-bad">ไม่พบโปรไฟล์ผู้ใช้ กรุณาติดต่อผู้ดูแลระบบ</p>
@@ -22,6 +24,7 @@ function Gate() {
           <Route index element={<List />} />
           <Route path="bookings/:id" element={<List />} />
           <Route path="notifications" element={<Notifications />} />
+          <Route path="password" element={<ChangePassword />} />
           {profile.role === 'sales' && <Route path="new" element={<NewBooking />} />}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

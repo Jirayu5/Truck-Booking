@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from './supabase'
+import { authLinkError, startedInRecovery, supabase } from './supabase'
 import type { Profile, Role } from './types'
 
 export const DEPT_LABEL: Record<Role, string> = { sales: 'ฝ่ายขาย', dispatch: 'แผนกจัดส่ง' }
@@ -24,6 +24,8 @@ interface AuthCtx {
   loading: boolean
   notice: string | null
   clearNotice: () => void
+  recovery: boolean
+  endRecovery: () => void
   signOut: () => Promise<void>
 }
 const Ctx = createContext<AuthCtx>(null!)
@@ -33,15 +35,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(authLinkError)
+  const [recovery, setRecovery] = useState(startedInRecovery)
+  const endRecovery = useCallback(() => setRecovery(false), [])
   const clearNotice = useCallback(() => setNotice(null), [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
-      if (!data.session) setLoading(false)
+      if (!data.session) { setLoading(false); setRecovery(false) }
     })
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((e, s) => {
+      if (e === 'PASSWORD_RECOVERY') setRecovery(true)
       setSession(s)
       if (!s) { setProfile(null); setLoading(false) }
     })
@@ -69,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [userId])
 
   return (
-    <Ctx.Provider value={{ session, profile, loading, notice, clearNotice, signOut: async () => { await supabase.auth.signOut() } }}>
+    <Ctx.Provider value={{ session, profile, loading, notice, clearNotice, recovery, endRecovery, signOut: async () => { await supabase.auth.signOut() } }}>
       {children}
     </Ctx.Provider>
   )

@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react'
+import { KeyRound, LogOut } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import MobileBar from '../components/MobileBar'
@@ -56,7 +56,10 @@ export default function Notifications() {
             ? <Link key={n.id} to={`/bookings/${n.booking_id}`} onClick={() => markOne(n.id)} className="block">{body}</Link>
             : <div key={n.id}>{body}</div>
         })}
-        <button onClick={signOut} className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-white py-3 font-medium text-slate-700 lg:hidden">
+        <Link to="/password" className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-white py-3 font-medium text-slate-700 lg:hidden">
+          <KeyRound size={18} />เปลี่ยนรหัสผ่าน
+        </Link>
+        <button onClick={signOut} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-line bg-white py-3 font-medium text-slate-700 lg:hidden">
           <LogOut size={18} />ออกจากระบบ
         </button>
       </div>

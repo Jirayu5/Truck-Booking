@@ -1,4 +1,4 @@
-import { Bell, Clock, Check, List, LogOut, Plus, User, X } from 'lucide-react'
+import { Bell, Clock, Check, KeyRound, List, LogOut, Plus, User, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
@@ -73,6 +73,9 @@ export default function Layout() {
           <Link to="/notifications" className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm ${path === '/notifications' ? 'bg-navy-2 text-white' : 'text-white/80 hover:bg-white/5'}`}>
             <Bell size={18} />การแจ้งเตือน
             {unread > 0 && <span className="ml-auto rounded-full bg-amber px-2 text-xs font-bold text-navy">{unread}</span>}
+          </Link>
+          <Link to="/password" className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm ${path === '/password' ? 'bg-navy-2 text-white' : 'text-white/80 hover:bg-white/5'}`}>
+            <KeyRound size={18} />เปลี่ยนรหัสผ่าน
           </Link>
           <div className="flex items-center gap-3 border-t border-white/10 pt-4">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-navy-2"><User size={20} /></span>
