@@ -1,21 +1,31 @@
 import { Bell, FileText, ImageIcon, Send, Upload, X } from 'lucide-react'
-import { useRef, useState, type DragEvent, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState, type DragEvent, type FormEvent } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import MobileBar from '../components/MobileBar'
 import { Button, Card, ErrorBox, DateField, Field, TimeField, inputCls } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { uploadFile } from '../lib/files'
 import { useBookings } from '../lib/bookings'
+import { fmtTime } from '../lib/format'
 import { supabase } from '../lib/supabase'
 
 const kb = (n: number) => (n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`)
 
 export default function NewBooking() {
   const { session } = useAuth()
-  const { reload } = useBookings()
+  const { reload, rows } = useBookings()
+  const [params] = useSearchParams()
+  const src = (rows ?? []).find((r) => String(r.id) === params.get('from'))
+  const prefilled = useRef(false)
   const nav = useNavigate()
   const today = new Date().toLocaleDateString('en-CA')
   const [f, setF] = useState({ delivery_date: today, destination: '', customer_name: '', depart_time: '', arrive_time: '', note: '' })
+  useEffect(() => {
+    if (!src || prefilled.current) return
+    prefilled.current = true
+    // คัดลอกข้อมูลจากคำขอเดิม (ยกเว้นวันที่และไฟล์แนบ ให้ผู้ใช้กรอก/แนบใหม่)
+    setF((p) => ({ ...p, customer_name: src.customer_name, destination: src.destination, depart_time: fmtTime(src.depart_time), arrive_time: src.arrive_time ?? '', note: src.note ?? '' }))
+  }, [src])
   const [files, setFiles] = useState<File[]>([])
   const [err, setErr] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -88,6 +98,7 @@ export default function NewBooking() {
           </div>
           <p className="mt-2 flex items-center gap-2 text-sm text-muted"><Bell size={16} />ระบบจะแจ้งเตือนเมื่อแผนกจัดส่งตอบกลับ</p>
         </div>
+        {src && <p className="mb-4 rounded-xl bg-brand-soft px-4 py-3 text-brand-dark">คัดลอกจากคำขอเดิมของ {src.customer_name} กรุณาเลือกวันที่ส่งใหม่และตรวจข้อมูลก่อนส่ง (ไม่คัดลอกไฟล์แนบ)</p>}
         <p className="mb-4 text-muted lg:hidden">กรอกแล้วส่งให้แผนกจัดส่งยืนยัน ระบบจะแจ้งเตือนเมื่อมีผล</p>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_21rem]">

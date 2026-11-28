@@ -2,6 +2,7 @@ import { Calendar, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import ConfirmForm from '../components/ConfirmForm'
+import ApprovedEditor from '../components/EditResultForm'
 import { CancelNote, RequestCard, ResultCard } from '../components/details'
 import FilterBar from '../components/FilterBar'
 import MobileBar from '../components/MobileBar'
@@ -14,7 +15,7 @@ import { exportBookingsCsv } from '../lib/export'
 import { matchesFilter } from '../lib/filter'
 import { fmtDateShort, fmtRelative, fmtStamp, fmtTime, provinceOf } from '../lib/format'
 import { useIsDesktop } from '../lib/hooks'
-import type { Booking, Status } from '../lib/types'
+import { confirmationOf, type Booking, type Status } from '../lib/types'
 
 type F = Status | 'all'
 const TITLE: Record<F, string> = { pending: 'รอยืนยัน', approved: 'ยืนยันแล้ว', rejected: 'ปฏิเสธแล้ว', cancelled: 'ยกเลิกแล้ว', all: 'ทั้งหมด' }
@@ -60,6 +61,7 @@ export default function Queue() {
           <div className="space-y-4">
             <CancelNote b={selected} />
             <ResultCard b={selected} />
+            <ApprovedEditor key={selected.id + '-' + (confirmationOf(selected)?.updated_at ?? '')} b={selected} userId={session.user.id} onDone={reload} />
             <div className="rounded-2xl border border-line bg-white p-5"><h2 className="mb-3 text-lg font-bold">ความคืบหน้า</h2><Timeline b={selected} /></div>
           </div>
         )}

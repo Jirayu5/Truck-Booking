@@ -14,6 +14,7 @@ export interface Confirmation {
   driver_photo_path: string | null
   note: string | null
   decided_at: string
+  updated_at?: string | null
 }
 
 export interface BookingFile { id: number; file_path: string; file_name: string }

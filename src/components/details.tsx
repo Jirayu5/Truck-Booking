@@ -1,4 +1,4 @@
-import { Ban, Check, Clock, Pencil, X } from 'lucide-react'
+import { Ban, Check, Clock, Copy, Pencil, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useBookings } from '../lib/bookings'
@@ -148,7 +148,7 @@ export function SalesActions({ b }: { b: Booking }) {
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  if (b.status !== 'pending' && b.status !== 'approved') return null
+  const canAct = b.status === 'pending' || b.status === 'approved'
 
   async function cancel() {
     setBusy(true); setErr(null)
@@ -157,6 +157,13 @@ export function SalesActions({ b }: { b: Booking }) {
     if (error) return setErr(error.message)
     setOpen(false); setReason(''); reload()
   }
+
+  const copy = (
+    <Link to={`/new?from=${b.id}`} className="flex items-center justify-center gap-2 rounded-xl border border-line bg-white py-3 font-semibold text-slate-700">
+      <Copy size={18} />สร้างใหม่จากรายการนี้
+    </Link>
+  )
+  if (!canAct) return copy
 
   return (
     <div className="space-y-3">
@@ -170,6 +177,7 @@ export function SalesActions({ b }: { b: Booking }) {
           <Ban size={18} />ยกเลิกคำขอ
         </button>
       </div>
+      {copy}
       {open && (
         <div className="space-y-3 rounded-2xl border border-bad/40 bg-bad-soft/40 p-4">
           <p className="font-semibold">

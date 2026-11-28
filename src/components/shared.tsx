@@ -58,6 +58,7 @@ export function Timeline({ b }: { b: Booking }) {
         ? <Row dot={<Dot ok={c.decision === 'approved'} bad={c.decision === 'rejected'} />}
             text={c.decision === 'approved' ? 'แผนกจัดส่งอนุมัติ' : 'แผนกจัดส่งปฏิเสธ'} at={fmtStamp(c.decided_at)} />
         : b.status !== 'cancelled' && <Row dot={<Dot />} text="รอแผนกจัดส่งยืนยัน" dim />}
+      {c?.updated_at && <Row dot={<Dot ok />} text="แผนกจัดส่งแก้ไขผลการจอง" at={fmtStamp(c.updated_at)} />}
       {b.status === 'cancelled' && <Row dot={<Dot bad />} text="ฝ่ายขายยกเลิกคำขอ" at={b.cancelled_at ? fmtStamp(b.cancelled_at) : undefined} />}
     </div>
   )
