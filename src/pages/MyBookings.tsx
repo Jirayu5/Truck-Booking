@@ -2,10 +2,13 @@ import { ChevronRight, Calendar, MapPin, Plus } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { SalesDetail } from '../components/details'
+import FilterBar from '../components/FilterBar'
 import MobileBar from '../components/MobileBar'
 import PushBanner from '../components/PushToggle'
 import { StatusBadge } from '../components/ui'
 import { useBookings } from '../lib/bookings'
+import { exportBookingsCsv } from '../lib/export'
+import { matchesFilter } from '../lib/filter'
 import { fmtDateShort, fmtDayMonth, fmtRelative, fmtTime, provinceOf } from '../lib/format'
 import { useIsDesktop } from '../lib/hooks'
 import type { Status } from '../lib/types'
@@ -13,13 +16,13 @@ import type { Status } from '../lib/types'
 type F = Status | 'all'
 
 export default function MyBookings() {
-  const { rows, error, counts } = useBookings()
+  const { rows, error, counts, filter: flt } = useBookings()
   const { id } = useParams()
   const nav = useNavigate()
   const desktop = useIsDesktop()
   const [params, setParams] = useSearchParams()
   const filter = (params.get('s') as F) ?? 'all'
-  const list = (rows ?? []).filter((r) => filter === 'all' || r.status === filter)
+  const list = (rows ?? []).filter((r) => (filter === 'all' || r.status === filter) && matchesFilter(r, flt))
   const selected = (rows ?? []).find((r) => String(r.id) === id)
 
   // เดสก์ท็อป: เลือกรายการแรกให้อัตโนมัติ
@@ -53,6 +56,7 @@ export default function MyBookings() {
               </button>
             ))}
           </div>
+          <div className="mb-4"><FilterBar total={list.length} onExport={() => exportBookingsCsv(list, 'คำขอจองรถของฉัน')} /></div>
         </div>
 
         {error && <p className="text-bad">{error}</p>}

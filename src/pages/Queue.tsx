@@ -3,12 +3,15 @@ import { useEffect } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import ConfirmForm from '../components/ConfirmForm'
 import { RequestCard, ResultCard } from '../components/details'
+import FilterBar from '../components/FilterBar'
 import MobileBar from '../components/MobileBar'
 import PushBanner from '../components/PushToggle'
 import { Timeline } from '../components/shared'
 import { StatusBadge } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { useBookings } from '../lib/bookings'
+import { exportBookingsCsv } from '../lib/export'
+import { matchesFilter } from '../lib/filter'
 import { fmtDateShort, fmtRelative, fmtStamp, fmtTime, provinceOf } from '../lib/format'
 import { useIsDesktop } from '../lib/hooks'
 import type { Booking, Status } from '../lib/types'
@@ -22,7 +25,7 @@ const CHIP: Record<F, string> = { pending: 'รอยืนยัน', approved:
 const isNew = (b: Booking) => b.status === 'pending' && Date.now() - new Date(b.created_at).getTime() < 3600 * 1000
 
 export default function Queue() {
-  const { rows, error, counts, reload } = useBookings()
+  const { rows, error, counts, reload, filter: flt } = useBookings()
   const { session } = useAuth()
   const { id } = useParams()
   const nav = useNavigate()
@@ -30,7 +33,7 @@ export default function Queue() {
   const [params] = useSearchParams()
   const filter = (params.get('s') as F) ?? 'pending'
 
-  const list = (rows ?? []).filter((r) => filter === 'all' || r.status === filter)
+  const list = (rows ?? []).filter((r) => (filter === 'all' || r.status === filter) && matchesFilter(r, flt))
   if (filter === 'pending') list.sort((a, b) => a.delivery_date.localeCompare(b.delivery_date) || a.depart_time.localeCompare(b.depart_time))
   const selected = (rows ?? []).find((r) => String(r.id) === id)
 
@@ -87,6 +90,7 @@ export default function Queue() {
           </div>
           <div className="space-y-3 p-4 lg:px-5 lg:pb-8">
             <PushBanner />
+            <FilterBar total={list.length} onExport={() => exportBookingsCsv(list, `คำขอจองรถ-${TITLE[filter]}`)} />
             {error && <p className="text-bad">{error}</p>}
             {rows === null && !error && <p className="text-muted">กำลังโหลด…</p>}
             {rows && list.length === 0 && <p className="py-12 text-center text-muted">ไม่มีรายการ</p>}

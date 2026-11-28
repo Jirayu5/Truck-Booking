@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from './supabase'
+import { EMPTY_FILTER, type ListFilter } from './filter'
 import type { Booking, Status } from './types'
 
 interface Ctx {
@@ -7,6 +8,9 @@ interface Ctx {
   error: string | null
   counts: Record<Status | 'all', number>
   reload: () => void
+  filter: ListFilter
+  setFilter: (p: Partial<ListFilter>) => void
+  clearFilter: () => void
 }
 const C = createContext<Ctx>(null!)
 export const useBookings = () => useContext(C)
@@ -16,6 +20,9 @@ const SELECT = '*, confirmations(*), booking_files(*), creator:profiles!created_
 export function BookingsProvider({ children }: { children: ReactNode }) {
   const [rows, setRows] = useState<Booking[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [filter, setFilterState] = useState<ListFilter>(EMPTY_FILTER)
+  const setFilter = useCallback((p: Partial<ListFilter>) => setFilterState((f) => ({ ...f, ...p })), [])
+  const clearFilter = useCallback(() => setFilterState(EMPTY_FILTER), [])
 
   const reload = useCallback(async () => {
     const { data, error } = await supabase.from('bookings').select(SELECT).order('created_at', { ascending: false }).limit(500)
@@ -39,5 +46,5 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
     return c
   }, [rows])
 
-  return <C.Provider value={{ rows, error, counts, reload }}>{children}</C.Provider>
+  return <C.Provider value={{ rows, error, counts, reload, filter, setFilter, clearFilter }}>{children}</C.Provider>
 }
