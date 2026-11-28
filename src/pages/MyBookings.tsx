@@ -30,7 +30,7 @@ export default function MyBookings() {
     if (desktop && !id && list.length) nav(`/bookings/${list[0].id}?s=${filter}`, { replace: true })
   }, [desktop, id, list, filter, nav])
 
-  const chips: [F, string][] = [['all', 'ทั้งหมด'], ['pending', 'รอการยืนยัน'], ['approved', 'อนุมัติแล้ว'], ['rejected', 'ปฏิเสธ']]
+  const chips: [F, string][] = [['all', 'ทั้งหมด'], ['pending', 'รอการยืนยัน'], ['approved', 'อนุมัติแล้ว'], ['rejected', 'ปฏิเสธ'], ['cancelled', 'ยกเลิก']]
   const open = (rid: number) => `/bookings/${rid}?s=${filter}`
 
   return (

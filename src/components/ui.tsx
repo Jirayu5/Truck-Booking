@@ -1,4 +1,4 @@
-import { Calendar, Check, Clock, X } from 'lucide-react'
+import { Ban, Calendar, Check, Clock, X } from 'lucide-react'
 import { fmtDateShort } from '../lib/format'
 import type { ReactNode } from 'react'
 import { STATUS_LABEL, type Status } from '../lib/types'
@@ -7,8 +7,9 @@ const BADGE: Record<Status, string> = {
   pending: 'bg-wait-soft text-wait',
   approved: 'bg-okay-soft text-okay',
   rejected: 'bg-bad-soft text-bad',
+  cancelled: 'bg-slate-200 text-slate-600',
 }
-const ICON = { pending: Clock, approved: Check, rejected: X }
+const ICON = { pending: Clock, approved: Check, rejected: X, cancelled: Ban }
 
 export function StatusBadge({ status, label, icon = true }: { status: Status; label?: string; icon?: boolean }) {
   const I = ICON[status]

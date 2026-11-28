@@ -2,7 +2,7 @@ import { Calendar, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import ConfirmForm from '../components/ConfirmForm'
-import { RequestCard, ResultCard } from '../components/details'
+import { CancelNote, RequestCard, ResultCard } from '../components/details'
 import FilterBar from '../components/FilterBar'
 import MobileBar from '../components/MobileBar'
 import PushBanner from '../components/PushToggle'
@@ -17,9 +17,9 @@ import { useIsDesktop } from '../lib/hooks'
 import type { Booking, Status } from '../lib/types'
 
 type F = Status | 'all'
-const TITLE: Record<F, string> = { pending: 'รอยืนยัน', approved: 'ยืนยันแล้ว', rejected: 'ปฏิเสธแล้ว', all: 'ทั้งหมด' }
+const TITLE: Record<F, string> = { pending: 'รอยืนยัน', approved: 'ยืนยันแล้ว', rejected: 'ปฏิเสธแล้ว', cancelled: 'ยกเลิกแล้ว', all: 'ทั้งหมด' }
 
-const CHIP: Record<F, string> = { pending: 'รอยืนยัน', approved: 'ยืนยันแล้ว', rejected: 'ปฏิเสธ', all: 'ทั้งหมด' }
+const CHIP: Record<F, string> = { pending: 'รอยืนยัน', approved: 'ยืนยันแล้ว', rejected: 'ปฏิเสธ', cancelled: 'ยกเลิก', all: 'ทั้งหมด' }
 
 // "ใหม่" = คำขอที่ยังรอยืนยันและส่งมาภายใน 1 ชั่วโมง
 const isNew = (b: Booking) => b.status === 'pending' && Date.now() - new Date(b.created_at).getTime() < 3600 * 1000
@@ -58,6 +58,7 @@ export default function Queue() {
         ? <ConfirmForm key={selected.id} bookingId={selected.id} userId={session.user.id} onDone={reload} />
         : (
           <div className="space-y-4">
+            <CancelNote b={selected} />
             <ResultCard b={selected} />
             <div className="rounded-2xl border border-line bg-white p-5"><h2 className="mb-3 text-lg font-bold">ความคืบหน้า</h2><Timeline b={selected} /></div>
           </div>

@@ -53,10 +53,12 @@ export function Timeline({ b }: { b: Booking }) {
   return (
     <div className="space-y-3">
       <Row dot={<Dot ok />} text="ส่งคำขอ" at={fmtStamp(b.created_at)} />
+      {b.edited_at && <Row dot={<Dot ok />} text="ฝ่ายขายแก้ไขคำขอ" at={fmtStamp(b.edited_at)} />}
       {c
         ? <Row dot={<Dot ok={c.decision === 'approved'} bad={c.decision === 'rejected'} />}
             text={c.decision === 'approved' ? 'แผนกจัดส่งอนุมัติ' : 'แผนกจัดส่งปฏิเสธ'} at={fmtStamp(c.decided_at)} />
-        : <Row dot={<Dot />} text="รอแผนกจัดส่งยืนยัน" dim />}
+        : b.status !== 'cancelled' && <Row dot={<Dot />} text="รอแผนกจัดส่งยืนยัน" dim />}
+      {b.status === 'cancelled' && <Row dot={<Dot bad />} text="ฝ่ายขายยกเลิกคำขอ" at={b.cancelled_at ? fmtStamp(b.cancelled_at) : undefined} />}
     </div>
   )
 }

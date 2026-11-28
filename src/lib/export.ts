@@ -12,12 +12,12 @@ const stamp = (iso?: string | null) =>
 
 export function exportBookingsCsv(rows: Booking[], name: string) {
   const head = ['เลขที่คำขอ', 'วันที่ส่งสินค้า', 'เวลารถออก', 'ลูกค้า', 'สถานที่ส่งสินค้า', 'เวลาถึงปลายทาง', 'หมายเหตุ',
-    'สถานะ', 'ผู้ส่งคำขอ', 'ส่งคำขอเมื่อ', 'ตัดสินเมื่อ', 'ประเภทรถ', 'เวลาถึงโรงงาน', 'เหตุผลที่ไม่อนุมัติ', 'หมายเหตุจากจัดส่ง']
+    'สถานะ', 'ผู้ส่งคำขอ', 'ส่งคำขอเมื่อ', 'ตัดสินเมื่อ', 'ประเภทรถ', 'เวลาถึงโรงงาน', 'เหตุผลที่ไม่อนุมัติ', 'หมายเหตุจากจัดส่ง', 'ยกเลิกเมื่อ', 'เหตุผลที่ยกเลิก', 'แก้ไขล่าสุด']
   const lines = rows.map((b) => {
     const c = confirmationOf(b)
     return [b.id, b.delivery_date, fmtTime(b.depart_time), b.customer_name, b.destination, b.arrive_time, b.note,
       STATUS_LABEL[b.status], b.creator?.full_name, stamp(b.created_at), stamp(c?.decided_at),
-      c?.vehicle_type ? VEHICLE_LABEL[c.vehicle_type] : '', fmtTime(c?.factory_arrival_time), c?.reject_reason, c?.note]
+      c?.vehicle_type ? VEHICLE_LABEL[c.vehicle_type] : '', fmtTime(c?.factory_arrival_time), c?.reject_reason, c?.note, stamp(b.cancelled_at), b.cancel_reason, stamp(b.edited_at)]
       .map(cell).join(',')
   })
   // BOM ให้ Excel อ่านภาษาไทยถูกต้อง

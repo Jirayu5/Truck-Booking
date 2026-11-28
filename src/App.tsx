@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import { AuthProvider, useAuth } from './lib/auth'
 import { BookingsProvider } from './lib/bookings'
 import { isConfigured } from './lib/supabase'
+import EditBooking from './pages/EditBooking'
 import Login from './pages/Login'
 import MyBookings from './pages/MyBookings'
 import NewBooking from './pages/NewBooking'
@@ -26,6 +27,7 @@ function Gate() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="password" element={<ChangePassword />} />
           {profile.role === 'sales' && <Route path="new" element={<NewBooking />} />}
+          {profile.role === 'sales' && <Route path="bookings/:id/edit" element={<EditBooking />} />}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

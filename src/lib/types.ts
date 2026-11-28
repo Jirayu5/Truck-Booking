@@ -1,5 +1,5 @@
 export type Role = 'sales' | 'dispatch'
-export type Status = 'pending' | 'approved' | 'rejected'
+export type Status = 'pending' | 'approved' | 'rejected' | 'cancelled'
 export type VehicleType = '4_wheel' | '6_wheel'
 
 export interface Profile { id: string; full_name: string; role: Role }
@@ -29,6 +29,9 @@ export interface Booking {
   status: Status
   created_by: string
   created_at: string
+  edited_at?: string | null
+  cancelled_at?: string | null
+  cancel_reason?: string | null
   confirmations?: Confirmation[] | Confirmation | null
   booking_files?: BookingFile[]
   creator?: { full_name: string } | null
@@ -47,6 +50,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   pending: 'รอการยืนยัน',
   approved: 'อนุมัติแล้ว',
   rejected: 'ปฏิเสธ',
+  cancelled: 'ยกเลิกแล้ว',
 }
 export const VEHICLE_LABEL: Record<VehicleType, string> = {
   '4_wheel': 'รถ 4 ล้อ',

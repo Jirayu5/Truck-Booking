@@ -1,4 +1,4 @@
-import { Bell, Clock, Check, KeyRound, List, LogOut, Plus, User, X } from 'lucide-react'
+import { Ban, Bell, Clock, Check, KeyRound, List, LogOut, Plus, User, X } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
@@ -41,6 +41,7 @@ export default function Layout() {
       <SideItem to="/?s=pending" icon={<Clock size={20} />} label="รอยืนยัน" badge={counts.pending} active={inList && cur === 'pending'} />
       <SideItem to="/?s=approved" icon={<Check size={20} />} label="ยืนยันแล้ว" active={inList && cur === 'approved'} />
       <SideItem to="/?s=rejected" icon={<X size={20} />} label="ปฏิเสธแล้ว" active={inList && cur === 'rejected'} />
+      <SideItem to="/?s=cancelled" icon={<Ban size={20} />} label="ยกเลิกแล้ว" active={inList && cur === 'cancelled'} />
     </>
   )
   const sideSales = (

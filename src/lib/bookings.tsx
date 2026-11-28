@@ -41,7 +41,7 @@ export function BookingsProvider({ children }: { children: ReactNode }) {
   }, [reload])
 
   const counts = useMemo(() => {
-    const c = { all: 0, pending: 0, approved: 0, rejected: 0 }
+    const c = { all: 0, pending: 0, approved: 0, rejected: 0, cancelled: 0 }
     for (const r of rows ?? []) { c.all++; c[r.status]++ }
     return c
   }, [rows])
